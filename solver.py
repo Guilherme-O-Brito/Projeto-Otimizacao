@@ -1,9 +1,6 @@
 import pulp
 
 def resolver_ppl(c, A, b, senses):
-    """
-    Resolve um problema de programação linear usando o método Simplex
-    """
     m = len(A)
     n = len(c)
 

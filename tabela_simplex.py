@@ -60,10 +60,6 @@ class AnalisadorSimplex:
         augmented_orig = self._augmented_values(ponto_otimo)
         total_aug = self.n + self.m  # tamanho do vetor augmentado
 
-        # Vamos estimar numericamente as colunas de B^{-1} (m colunas) resolvendo m LPs
-        # com b + e_j (unitário em cada restrição). Para cada j calculamos:
-        # delta_aug_col_j = augmented(b + e_j) - augmented_orig
-        # Assim, qualquer alteração generalizada Δb dá: Δaug = sum_j delta_aug_col_j * Δb_j
         cols = []  # lista de colunas (cada coluna é vetor comprimento total_aug)
         for j in range(m):
             # construir b' = b + e_j
@@ -84,25 +80,19 @@ class AnalisadorSimplex:
             col = [augmented_prime[k] - augmented_orig[k] for k in range(total_aug)]
             cols.append(col)
 
-        # Agora montamos as expressões para cada linha básica que consideramos relevante.
-        # Vamos considerar como "linhas a verificar" as m linhas correspondentes às restrições,
-        # mas apresentar as expressões por variável básica detectada (preferimos mostrar as m linhas da tabela final).
-        # Para exibição simples, geramos m expressões correspondentes às m restrições (linhas do tableau).
         condicoes = []
         resultados = []
-        # Para apresentar coeficientes, usamos as linhas correspondentes às últimas m entradas do vetor augmentado
-        # (i.e., as folgas/surplus) — são as que representam diretamente as linhas do tableau.
-        # índice base das linhas na augmented vector: n .. n+m-1
+        
         for row_idx in range(self.n, self.n + m):
             # coeficientes para Δ1..Δm são cols[col_j][row_idx]
             coefs = [cols[j][row_idx] for j in range(m)]
-            const_term = augmented_orig[row_idx]  # valor independente (ex.: 41.67)
-            # montar expressão string bonita: ex "Δ1 - 0,39·Δ2 - 0,21·Δ3 + 41,67 ≥ 0"
+            const_term = augmented_orig[row_idx] 
+            
             parts = []
             for j, coef in enumerate(coefs):
                 # pular coef aproximadamente zero
                 if isclose(coef, 0.0, abs_tol=1e-9):
-                    parts.append(f"{0:+.2f}·Δ{j+1}")  # mostra 0.00*Δj para consistência (ou poderíamos pular)
+                    parts.append(f"{0:+.2f}·Δ{j+1}")
                 else:
                     # formatar sinal e valor
                     sign = "+" if coef >= 0 else "-"
